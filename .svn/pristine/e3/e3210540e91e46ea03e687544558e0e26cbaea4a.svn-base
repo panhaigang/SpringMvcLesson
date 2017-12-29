@@ -1,0 +1,61 @@
+package cn.et.springmvc.lesson04;
+
+
+
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Locale;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import cn.et.springmvc.lesson04.entity.UserInfo;
+/**
+ * 
+ */
+@Controller
+public class RController {
+	@RequestMapping(value="/rrr",method=RequestMethod.GET)
+	public String ir(@ModelAttribute("userInfo") @Valid UserInfo user,BindingResult error){
+		
+		return "lesson04/reg1";
+	}
+	
+	@Autowired
+	MessageSource ms;
+	@RequestMapping(value="/rr",method=RequestMethod.GET)
+	public String ir(HttpServletResponse re,OutputStream os,Locale locale) throws UnsupportedEncodingException, NoSuchMessageException, IOException{
+		re.setContentType("text/html;charset=UTF-8");
+		os.write(ms.getMessage("key",null ,locale).getBytes("UTF-8"));
+		return null;
+	}
+	
+	@RequestMapping(value="/mid",method=RequestMethod.GET)
+	public String mid() {
+		
+		return "/lesson04/reg.jsp";
+	}
+	
+	@RequestMapping(value="/myreg",method=RequestMethod.GET)
+	public String myreg(@Valid UserInfo user,BindingResult r,Locale locale) {
+		if(!user.getPassword().equals(user.getRepassword())){
+			r.addError(new FieldError("userInfo","repassword",ms.getMessage("repassword1Error", null,locale).toString()));
+		}
+		if(r.hasErrors()){
+			return "/lesson04/reg.jsp";
+		}
+		return null;
+	}
+}

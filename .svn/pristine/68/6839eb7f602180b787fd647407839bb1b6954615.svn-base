@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd">
+	<context:component-scan base-package="cn"></context:component-scan>
+	
+	<!-- 自定义验证器  手动注入国际化 -->
+	<bean id="localValidatorFactoryBean" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+		<property name="validationMessageSource" ref="messageSource"></property>
+	</bean>
+	<!-- 启用注解驱动 -->
+	<mvc:annotation-driven validator="localValidatorFactoryBean"></mvc:annotation-driven>
+	
+	
+	<!-- 该拦截器用于拦截url上的参数 -->
+	<mvc:interceptors>
+		<bean id="localeChangeInterceptor" class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+			<property name="paramName" value="a"></property>
+		</bean>
+		<mvc:interceptor>
+			<mvc:mapping path="/inter"/>
+			<bean class="cn.et.springmvc.lesson05.MyInteractor"></bean>
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/pppp"/>
+			<bean class="cn.et.springmvc.lesson05.KInteractor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+	<!-- 参数需要被临时存储在某个地方  当用户再次访问 使用之前设置的参数
+		只是当jsp经过action之后才会将当前的国家和语言存储在session中  同时从session中获取
+	 -->
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"></bean>
+	
+	<!-- 静态资源映射 -->
+	<mvc:resources location="/WEB-INF/imgs/" mapping="/img/**"></mvc:resources>
+	
+	
+	
+	
+	<!-- 视图解析 -->
+	<!--<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+	
+	
+	
+	--><context:property-placeholder location="classpath:/mysql.properties"/>
+        <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">  
+            <property name="url" value="${url}"></property>  
+            <property name="username" value="${username1}"></property>  
+            <property name="password" value="${password}"></property>  
+            <property name="driverClassName" value="${driverClass}"></property>  
+        </bean>
+          
+        <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">  
+            <property name="dataSource" ref="dataSource"></property>  
+        </bean>
+</beans>

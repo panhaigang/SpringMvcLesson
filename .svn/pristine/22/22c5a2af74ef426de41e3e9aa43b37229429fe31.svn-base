@@ -1,0 +1,120 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + ":" + request.getServerPort()
+			+ path + "/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+	<head>
+		<base href="<%=basePath%>">
+
+		<title>My JSP 'list.jsp' starting page</title>
+
+		<meta http-equiv="pragma" content="no-cache">
+		<meta http-equiv="cache-control" content="no-cache">
+		<meta http-equiv="expires" content="0">
+		<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+		<meta http-equiv="description" content="This is my page">
+		<!--
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	-->
+
+<script type="text/javascript">
+	function sendAjax(url,methodType,param,retnFunction){
+		var xmlhttp=null;
+		//兼容所有的浏览器 创建XHR对象
+		if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+			xmlhttp = new XMLHttpRequest();
+		} else {// code for IE6, IE5
+			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		
+		xmlhttp.onreadystatechange=function() {
+			if (xmlhttp.readyState==4 && xmlhttp.status==200){
+				retnFunction(xmlhttp.responseText);
+			}
+		}
+		
+		if(methodType=="get"||methodType=="GET"){
+			xmlhttp.open("GET",url+"?"+param,true);
+			xmlhttp.send();
+		}else{
+			xmlhttp.open("POST",url,true);
+			//charset=UTF-8  解决乱码问题
+			xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded;charset=UTF-8");
+			xmlhttp.send(param);
+		}
+	}
+	
+	function query() {
+		var foodname=document.getElementsByName("foodName")[0].value;
+		sendAjax("${pageContext.request.contextPath}/popo","GET","foodname="+foodname,function(responseText){
+				alert(responseText);
+				var resultJson=responseText;
+		    	//转化为js对象  返回为一个集合
+		    	var resultObj=JSON.parse(resultJson);
+		    	//获取表格id为myTable对象
+		    	var table=document.getElementById("myTable");
+		    	//获取所有的name为dataTr的tr
+		    	var allDataTr=document.getElementsByName("dataTr");
+		    	for(var i=0;allDataTr.length;i++){
+		    		//数组是动态变化的   删了第一个 第二个会变成第一个
+		    		table.removeChild(allDataTr[0]);
+		    	}
+		    	
+		    	//展示查询的结果
+		    	for(var i=0;i<resultObj.length;i++){
+		    		var obj=resultObj[i];
+		    		
+		    		//获取td对象
+		    		var td=document.createElement("td");
+		    		//设值
+		    		td.innerText=obj.foodName;
+		    		var td1=document.createElement("td");
+		    		td1.innerText=obj.price;
+		    		//获取一个td对象
+		    		var td2=document.createElement("td");
+		    		//获取一个button对象
+		    		var id=document.createElement("button");
+		    		id.innerText="删除";
+		    		td2.appendChild(id);
+		    		
+		    		
+		    		//获取tr对象
+		    		var tr=document.createElement("tr");
+		    		//把获取的对象绑定在button按钮上
+		    		id.foodObj=obj;
+		    		//把tr绑定在button按钮上
+		    		id.myLineTr=tr;
+		    		id.addEventListener("click",function(){
+		    			var eventSrc=event.srcElement;
+		    			table.removeChild(eventSrc.myLineTr)
+		    		});
+		    		
+		    		//给tr标签设一个标识
+		    		tr.setAttribute("name","dataTr");
+					//在tr追加td
+					tr.appendChild(td);
+					tr.appendChild(td1);
+					tr.appendChild(td2);
+					//把tr追加到table后
+		    		table.appendChild(tr);
+	  			}
+		});
+	}
+</script>
+
+	</head>
+
+	<body>
+		<input type="text" name="foodName">
+		<input type="button" value="提交" onclick="query()">
+	</body>
+
+	<table id="myTable">
+		<tr><th>菜品名</th><th>菜品价格</th><th>操作</th></tr>
+	</table>
+</html>
